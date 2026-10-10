@@ -17,6 +17,12 @@ from dotenv import load_dotenv
 from groq import Groq
 from apify_client import ApifyClient
 
+try:
+    from twilio.rest import Client as TwilioClient
+    TWILIO_AVAILABLE = True
+except ImportError:
+    TWILIO_AVAILABLE = False
+
 # Ensure UTF-8 output on Windows terminal
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -122,34 +128,56 @@ def save_seen(seen):
 
 
 def notify(owner_msg: str):
-    """Print to console and send alert directly to owner's Telegram."""
+    """Print to console and send alert to Telegram + WhatsApp."""
     print(owner_msg)
 
+    # Telegram notification
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
 
-    if not bot_token or not chat_id:
-        print("ℹ️  Telegram bot token or chat ID not set, skipping Telegram notification.")
-        return
+    if bot_token and chat_id:
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        payload = json.dumps({
+            "chat_id": chat_id,
+            "text": owner_msg,
+        }).encode("utf-8")
 
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    payload = json.dumps({
-        "chat_id": chat_id,
-        "text": owner_msg,
-    }).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={"Content-Type": "application/json"}
+        )
 
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        headers={"Content-Type": "application/json"}
-    )
+        try:
+            with urllib.request.urlopen(req) as resp:
+                if resp.status == 200:
+                    print("📱 Alert sent to Telegram!")
+        except Exception as e:
+            print(f"⚠️ Failed to send Telegram message: {e}")
 
-    try:
-        with urllib.request.urlopen(req) as resp:
-            if resp.status == 200:
-                print("📱 Alert sent to Telegram!")
-    except Exception as e:
-        print(f"⚠️ Failed to send Telegram message: {e}")
+    # WhatsApp notification via Twilio
+    if TWILIO_AVAILABLE:
+        account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
+        auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
+        whatsapp_from = os.environ.get("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
+        whatsapp_to = os.environ.get("WHATSAPP_TO")
+
+        if account_sid and auth_token and whatsapp_to:
+            try:
+                client = TwilioClient(account_sid, auth_token)
+                message = client.messages.create(
+                    from_=whatsapp_from,
+                    body=owner_msg,
+                    to=whatsapp_to
+                )
+                print(f"📱 Alert sent to WhatsApp! (SID: {message.sid[:10]}...)")
+            except Exception as e:
+                print(f"⚠️ WhatsApp send failed: {e}")
+                print("   (Note: Twilio sandbox requires 'join' message first)")
+        else:
+            print("ℹ️  WhatsApp credentials not fully configured, skipping WhatsApp notification.")
+    else:
+        print("ℹ️  Twilio not available, skipping WhatsApp notification.")
 
 
 def generate_summary(reviews, results):

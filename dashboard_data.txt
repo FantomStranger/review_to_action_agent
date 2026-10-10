@@ -1,0 +1,63 @@
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> Status: RUNNING, Message: 
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:46.817Z [33mACTOR: [39mPulling container image of build HZXM6laRualxCKjc7 from registry.
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:46.819Z [33mACTOR: [39mCreating container.
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:46.893Z [33mACTOR: [39mStarting container.
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:46.898Z [33mACTOR: [39mRunning under "LIMITED_PERMISSIONS".
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:49.433Z [32mINFO[39m  System info[90m {"apifyVersion":"3.7.2","apifyClientVersion":"2.23.4","crawleeVersion":"3.18.0","osType":"Linux","nodeVersion":"v24.21.0"}[39m
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:49.675Z [32mINFO[39m  [BG ENQUEUE] Finished enqueueing
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> Status: RUNNING, Message: Starting the crawler.
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:49.712Z [32mINFO[39m [33m HttpCrawler:[39m Starting the crawler.
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:53.408Z [32mINFO[39m  \u2b50\ufe0f [20/50] Extracting reviews from https://www.google.com/maps/search/?api=1&query=Mana%20Katha%20Cafe%20%26%20Restaurant&query_place_id=ChIJe2giTQChyzsRVTHYZV1Hc_8
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:54.144Z [32mINFO[39m  \u2b50\ufe0f [40/50] Extracting reviews from https://www.google.com/maps/search/?api=1&query=Mana%20Katha%20Cafe%20%26%20Restaurant&query_place_id=ChIJe2giTQChyzsRVTHYZV1Hc_8
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:54.741Z [32mINFO[39m  \u2b50\ufe0f [50/50] Stopping: Reached required number of reviews
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:54.809Z [32mINFO[39m [33m HttpCrawler:[39m Crawler's custom isFinishedFunction() returned true, the crawler will shut down.
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:54.873Z [32mINFO[39m [33m HttpCrawler:[39m Final request statistics:[90m {"requestsFinished":3,"requestsFailed":0,"retryHistogram":[3],"requestAvgFailedDurationMillis":null,"requestAvgFinishedDurationMillis":1662,"requestsFinishedPerMinute":34,"requestsFailedPerMinute":0,"requestTotalDurationMillis":4986,"requestsTotal":3,"crawlerRuntimeMillis":5247}[39m
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:54.874Z [32mINFO[39m [33m HttpCrawler:[39m Finished! Total 3 requests: 3 succeeded, 0 failed.[90m {"terminal":true}[39m
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:54.957Z [32mINFO[39m  \U0001f4ca 0 places scraped | 50 reviews scraped | unique: 1 | totalReviewsScraped: 50
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> 2026-10-10T06:16:55.015Z [32mINFO[39m  \U0001f4ca 0 places scraped | 50 reviews scraped | unique: 1 | totalReviewsScraped: 50
+[36m[apify.Google-Maps-Reviews-Scraper runId:4XakRlF688KsSNGB7][0m -> Status: SUCCEEDED, Message: Finished! Total 3 requests: 3 succeeded, 0 failed.
+📊 [MODE 2: HISTORICAL AUDIT] Running deep analysis on cafe reviews...
+
+📡 Fetching live reviews from Google Maps via Apify (limit=50)...
+✅ Fetched 50 live reviews from Google Maps
+🔍 Analyzing all 50 reviews with Groq LLM...
+
+📋 *MANA KATHA CAFE - EXECUTIVE AUDIT REPORT*
+═════════════════════════════════════════
+📈 *Overall Health*:
+• Total Reviews Analyzed: 50
+• Average Rating: 4.48 / 5.0 ⭐
+• 5-Star: 39 | 4-Star: 6 | 3-Star: 0
+• 2-Star: 0 | 1-Star: 5
+
+📊 *TOP COMPLAINT AREAS (Fix This First)*:
+
+1. *Food*: 11 complaint(s) (impact score: 14)
+2. *Service*: 12 complaint(s) (impact score: 13)
+3. *Ambience*: 11 complaint(s) (impact score: 13)
+4. *Wait*: 2 complaint(s) (impact score: 4)
+5. *Price*: 1 complaint(s) (impact score: 2)
+6. *Billing*: 1 complaint(s) (impact score: 2)
+
+💡 *Action Recommendation*:
+Focus kitchen and staff training on top-ranked categories to prevent customer churn.
+📋 *MANA KATHA CAFE - EXECUTIVE AUDIT REPORT*
+═════════════════════════════════════════
+📈 *Overall Health*:
+• Total Reviews Analyzed: 50
+• Average Rating: 4.48 / 5.0 ⭐
+• 5-Star: 39 | 4-Star: 6 | 3-Star: 0
+• 2-Star: 0 | 1-Star: 5
+
+📊 *TOP COMPLAINT AREAS (Fix This First)*:
+
+1. *Food*: 11 complaint(s) (impact score: 14)
+2. *Service*: 12 complaint(s) (impact score: 13)
+3. *Ambience*: 11 complaint(s) (impact score: 13)
+4. *Wait*: 2 complaint(s) (impact score: 4)
+5. *Price*: 1 complaint(s) (impact score: 2)
+6. *Billing*: 1 complaint(s) (impact score: 2)
+
+💡 *Action Recommendation*:
+Focus kitchen and staff training on top-ranked categories to prevent customer churn.
+📱 Alert sent to Telegram!
