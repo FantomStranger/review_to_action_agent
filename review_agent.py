@@ -14,6 +14,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from groq import Groq
+from apify_client import ApifyClient
 
 # Ensure UTF-8 output on Windows terminal
 if sys.platform == "win32":
@@ -39,10 +40,41 @@ Review: {text}
 """
 
 
-# ---- 1. source: replace with the live Apify call before the demo -------------
-def load_raw(path="reviews.json"):
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+# ---- 1. source: LIVE Apify Google Maps Reviews Scraper -----------------------
+def load_raw():
+    """
+    Fetch live Google reviews via Apify.
+    Fallback to reviews.json if Apify fails (so demo never crashes).
+    """
+    try:
+        client = ApifyClient(os.environ.get("APIFY_API_TOKEN"))
+
+        # Start the actor with the exact Place ID for Mana Katha Cafe & Restaurant
+        print("📡 Fetching live reviews from Google Maps via Apify...")
+        run = client.actor("compass/google-maps-reviews-scraper").call(
+            run_input={
+                "placeIds": ["ChIJe2giTQChyzsRVTHYZV1Hc_8"],
+                "maxReviews": 20,
+                "language": "en",
+            }
+        )
+
+        # Get the results from the dataset
+        dataset_id = run.get("defaultDatasetId") if isinstance(run, dict) else getattr(run, "default_dataset_id", getattr(run, "defaultDatasetId", None))
+        items = list(client.dataset(dataset_id).iterate_items())
+
+        if not items:
+            print("⚠️  No items returned by live scraper, using cached dataset")
+            with open("reviews.json", encoding="utf-8") as f:
+                return json.load(f)
+
+        print(f"✅ Fetched {len(items)} live reviews from Google Maps")
+        return items
+
+    except Exception as e:
+        print(f"⚠️  Apify failed ({e}), falling back to reviews.json")
+        with open("reviews.json", encoding="utf-8") as f:
+            return json.load(f)
 
 
 # ---- 2. normalize: everything downstream sees ONLY these three fields ---------
@@ -101,6 +133,9 @@ def main():
 
     results = {r["id"]: analyse(r) for r in new}
     urgent = [r for r in new if r["rating"] <= 2 or results[r["id"]]["severity"] == 2]
+
+    if urgent:
+        print(f"\n🚨 Found {len(urgent)} urgent reviews:\n")
 
     for r in urgent:
         a = results[r["id"]]
