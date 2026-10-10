@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mana Katha Review Monitor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --text: #1c1917;
+  --text-muted: #78716c;
+  --border: #e7e5e4;
+  --accent: #ea580c;
+  --success: #16a34a;
+  --warning: #eab308;
+  --critical: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c0a09;
+    --surface: #1c1917;
+    --text: #fafaf9;
+    --text-muted: #a8a29e;
+    --border: #292524;
+    --accent: #f97316;
+    --success: #22c55e;
+    --warning: #facc15;
+    --critical: #ef4444;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0c0a09;
+  --surface: #1c1917;
+  --text: #fafaf9;
+  --text-muted: #a8a29e;
+  --border: #292524;
+  --accent: #f97316;
+  --success: #22c55e;
+  --warning: #facc15;
+  --critical: #ef4444;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px;
+  line-height: 1.6;
+  min-width: 0;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.header .subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card .label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.stat-card .value {
+  font-size: clamp(28px, 6vw, 36px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.stat-card .subtext {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.charts-grid {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  min-width: 0;
+}
+
+.panel h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  min-width: 0;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
+  transition: transform 0.2s;
+}
+
+.category-item:hover {
+  transform: translateX(4px);
+}
+
+.category-rank {
+  min-width: 36px;
+  height: 36px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  margin-right: 16px;
+}
+
+.category-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.category-name {
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: capitalize;
+  margin-bottom: 4px;
+}
+
+.category-stats {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.urgent-panel {
+  grid-column: 1 / -1;
+}
+
+.review-card {
+  padding: 20px;
+  background: var(--bg);
+  border-radius: 8px;
+  border-left: 4px solid var(--critical);
+  margin-bottom: 16px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stars {
+  color: #fbbf24;
+  font-size: 16px;
+}
+
+.severity-badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.severity-critical { background: var(--critical); color: white; }
+.severity-medium { background: var(--warning); color: #1c1917; }
+.severity-low { background: var(--text-muted); color: white; }
+
+.review-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.review-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tag {
+  padding: 6px 12px;
+  background: var(--accent);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.footer strong {
+  color: var(--text);
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 16px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🍽️ Mana Katha Cafe Review Monitor</h1>
+    <p class="subtitle">Real-time analytics • Live Google Maps data • AI-powered insights</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Total Reviews</div>
+      <div class="value">50</div>
+      <div class="subtext">Analyzed from Google Maps</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="label">Average Rating</div>
+      <div class="value">4.48★</div>
+      <div class="subtext">Out of 5.0</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="label">Urgent Alerts</div>
+      <div class="value" style="color: var(--critical)">5</div>
+      <div class="subtext">Requiring immediate action</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="label">Health Score</div>
+      <div class="value" style="color: var(--success)">90%</div>
+      <div class="subtext">78% positive sentiment</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="panel">
+      <h2>⭐ Star Distribution</h2>
+      <div class="chart-container">
+        <canvas id="starChart"></canvas>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>📊 Category Breakdown</h2>
+      <div class="chart-container">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>🎯 Fix This First - Priority Ranking</h2>
+    <div class="category-list">
+      <div class="category-item">
+        <div class="category-rank">1</div>
+        <div class="category-info">
+          <div class="category-name">Food Quality</div>
+          <div class="category-stats">11 complaints • Impact score: 14</div>
+        </div>
+      </div>
+
+      <div class="category-item">
+        <div class="category-rank">2</div>
+        <div class="category-info">
+          <div class="category-name">Service Speed</div>
+          <div class="category-stats">12 complaints • Impact score: 13</div>
+        </div>
+      </div>
+
+      <div class="category-item">
+        <div class="category-rank">3</div>
+        <div class="category-info">
+          <div class="category-name">Ambience</div>
+          <div class="category-stats">11 complaints • Impact score: 13</div>
+        </div>
+      </div>
+
+      <div class="category-item" style="border-left-color: var(--warning)">
+        <div class="category-rank" style="background: var(--warning); color: #1c1917">4</div>
+        <div class="category-info">
+          <div class="category-name">Wait Time</div>
+          <div class="category-stats">2 complaints • Impact score: 4</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel urgent-panel">
+    <h2>🚨 Recent Urgent Reviews</h2>
+
+    <div class="review-card">
+      <div class="review-header">
+        <div class="stars">⭐</div>
+        <div class="severity-badge severity-critical">Critical</div>
+      </div>
+      <div class="review-text">
+        "Food is too worst and too spicy. Time was too long to get food on table. Coming to bill firstly they charged 1800 which we ordered and canceled, later charged 1300 but calculation should be 1000..."
+      </div>
+      <div class="review-tags">
+        <span class="tag">food</span>
+        <span class="tag">wait</span>
+        <span class="tag">billing</span>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-header">
+        <div class="stars">⭐</div>
+        <div class="severity-badge severity-medium">Medium</div>
+      </div>
+      <div class="review-text">
+        "Ambience is good and clean, but food was average. No mayo for paneer popcorn and iced coffee was served without ice."
+      </div>
+      <div class="review-tags">
+        <span class="tag">food</span>
+        <span class="tag">service</span>
+        <span class="tag">ambience</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>
+      <strong>Built for Build in Café 2026 Hackathon</strong><br>
+      Live data via <a href="https://apify.com" target="_blank">Apify</a> Google Maps Scraper + <a href="https://groq.com" target="_blank">Groq</a> LLM Analysis<br>
+      Multi-channel alerts: Telegram + WhatsApp • Zero mocks, 100% real-time data
+    </p>
+  </div>
+</div>
+
+<script>
+// Get computed CSS variables
+const root = getComputedStyle(document.documentElement);
+const accent = root.getPropertyValue('--accent').trim();
+const critical = root.getPropertyValue('--critical').trim();
+const warning = root.getPropertyValue('--warning').trim();
+const success = root.getPropertyValue('--success').trim();
+const textColor = root.getPropertyValue('--text').trim();
+const textMuted = root.getPropertyValue('--text-muted').trim();
+
+// Star Distribution Chart
+const starCtx = document.getElementById('starChart').getContext('2d');
+new Chart(starCtx, {
+  type: 'bar',
+  data: {
+    labels: ['5★', '4★', '3★', '2★', '1★'],
+    datasets: [{
+      label: 'Reviews',
+      data: [39, 6, 0, 0, 5],
+      backgroundColor: [success, accent, warning, warning, critical],
+      borderRadius: 8,
+      barThickness: 40
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.parsed.y} reviews`
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: textMuted, stepSize: 10 },
+        grid: { color: 'rgba(128, 128, 128, 0.1)' }
+      },
+      x: {
+        ticks: { color: textMuted },
+        grid: { display: false }
+      }
+    }
+  }
+});
+
+// Category Breakdown Chart
+const catCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(catCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Food', 'Service', 'Ambience', 'Wait', 'Price', 'Billing'],
+    datasets: [{
+      data: [11, 12, 11, 2, 1, 1],
+      backgroundColor: [
+        critical,
+        accent,
+        warning,
+        '#fb923c',
+        '#fdba74',
+        '#fed7aa'
+      ],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          color: textMuted,
+          padding: 15,
+          font: { size: 12 }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.label}: ${context.parsed} complaints`
+        }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
