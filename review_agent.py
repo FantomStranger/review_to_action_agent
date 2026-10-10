@@ -212,7 +212,8 @@ def run_single_pass():
             f"Severity: {severity_label}\n"
             f"Categories: {', '.join(a['categories']) or 'none'}\n\n"
             f"Review:\n{r['text'] or '(star-only review, no text)'}\n\n"
-            f"💬 DRAFT REPLY:\n{a['reply'] or '(no reply needed)'}"
+            f"💬 DRAFT REPLY:\n{a['reply'] or '(no reply needed)'}\n\n"
+            f"🔗 View & Reply on Google Maps:\n{r['id']}"
         )
         notify(msg)
 
