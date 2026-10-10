@@ -11,6 +11,10 @@ Spec (see chat):
 """
 import json
 import os
+from dotenv import load_dotenv
+from groq import Groq
+
+load_dotenv()
 
 CATEGORIES = ["food", "service", "price", "ambience", "wait", "hygiene", "billing"]
 SEEN_FILE = "seen.json"
@@ -48,7 +52,13 @@ def normalize(raw):
 # ---- 3. the one function you plug your LLM provider into ---------------------
 def call_llm(prompt: str) -> str:
     """Send prompt to your LLM provider, return its text reply."""
-    raise NotImplementedError("plug in Gemini/Groq/etc. here")
+    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+    response = client.chat.completions.create(
+        model="openai/gpt-oss-120b",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3,
+    )
+    return response.choices[0].message.content
 
 
 def analyse(r):
