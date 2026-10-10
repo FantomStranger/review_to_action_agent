@@ -11,8 +11,13 @@ Spec (see chat):
 """
 import json
 import os
+import sys
 from dotenv import load_dotenv
 from groq import Groq
+
+# Ensure UTF-8 output on Windows terminal
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 load_dotenv()
 
