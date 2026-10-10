@@ -12,6 +12,8 @@ Spec (see chat):
 import json
 import os
 import sys
+import urllib.request
+import urllib.parse
 from dotenv import load_dotenv
 from groq import Groq
 from apify_client import ApifyClient
@@ -123,7 +125,34 @@ def save_seen(seen):
 
 
 def notify(owner_msg: str):
-    print(owner_msg)  # next step: send via Telegram bot
+    """Print to console and send alert directly to owner's Telegram."""
+    print(owner_msg)
+
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+
+    if not bot_token or not chat_id:
+        print("ℹ️  Telegram bot token or chat ID not set, skipping Telegram notification.")
+        return
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = json.dumps({
+        "chat_id": chat_id,
+        "text": owner_msg,
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={"Content-Type": "application/json"}
+    )
+
+    try:
+        with urllib.request.urlopen(req) as resp:
+            if resp.status == 200:
+                print("📱 Alert sent to Telegram!")
+    except Exception as e:
+        print(f"⚠️ Failed to send Telegram message: {e}")
 
 
 def main():
