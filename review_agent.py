@@ -155,6 +155,38 @@ def notify(owner_msg: str):
         print(f"⚠️ Failed to send Telegram message: {e}")
 
 
+def generate_summary(reviews, results):
+    """
+    Produce a category ranking report sorted by frequency and severity.
+    """
+    category_counts = {c: 0 for c in CATEGORIES}
+    category_weights = {c: 0 for c in CATEGORIES}
+
+    for r in reviews:
+        analysis = results.get(r["id"])
+        if not analysis:
+            continue
+        for cat in analysis["categories"]:
+            category_counts[cat] += 1
+            category_weights[cat] += (analysis["severity"] + 1)
+
+    # Sort categories by weighted impact
+    ranked = sorted(
+        [(cat, category_counts[cat], category_weights[cat]) for cat in CATEGORIES if category_counts[cat] > 0],
+        key=lambda x: x[2],
+        reverse=True
+    )
+
+    if not ranked:
+        return "📊 Summary: No complaints recorded in this batch!"
+
+    summary_lines = ["📊 *TOP COMPLAINT AREAS (Fix This First)*:\n"]
+    for i, (cat, count, weight) in enumerate(ranked, 1):
+        summary_lines.append(f"{i}. *{cat.capitalize()}*: {count} complaint(s) (impact score: {weight})")
+
+    return "\n".join(summary_lines)
+
+
 def main():
     reviews = [normalize(x) for x in load_raw()]
     seen = load_seen()
@@ -180,6 +212,11 @@ def main():
             f"💬 DRAFT REPLY:\n{a['reply'] or '(no reply needed)'}"
         )
         notify(msg)
+
+    # Print & notify the ranked summary
+    summary_msg = generate_summary(new, results)
+    print("\n" + summary_msg)
+    notify(summary_msg)
 
     save_seen(seen | {r["id"] for r in reviews})
 
