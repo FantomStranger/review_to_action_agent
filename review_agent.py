@@ -168,11 +168,18 @@ def main():
 
     for r in urgent:
         a = results[r["id"]]
-        notify(
-            f"[{r['rating']}*] {r['text'] or '(no text)'}\n"
-            f"  tags={a['categories']} severity={a['severity']}\n"
-            f"  draft reply: {a['reply'] or '(none - star-only review)'}\n"
+        stars = "⭐" * r["rating"]
+        severity_label = {0: "Low", 1: "⚠️ Medium", 2: "🚨 URGENT"}[a["severity"]]
+
+        msg = (
+            f"🚨 NEW URGENT REVIEW\n\n"
+            f"Rating: {stars} ({r['rating']}/5)\n"
+            f"Severity: {severity_label}\n"
+            f"Categories: {', '.join(a['categories']) or 'none'}\n\n"
+            f"Review:\n{r['text'] or '(star-only review, no text)'}\n\n"
+            f"💬 DRAFT REPLY:\n{a['reply'] or '(no reply needed)'}"
         )
+        notify(msg)
 
     save_seen(seen | {r["id"] for r in reviews})
 
